@@ -1,7 +1,13 @@
 import React from 'react';
-import SimpleTable from './tableview';
-import {TextField,AppBar,Toolbar,Typography} from '@material-ui/core';
+import SimpleTable from './simpletable';
+import {TextField,AppBar,Toolbar,Typography,withStyles} from '@material-ui/core';
+import axios from 'axios';
 
+const styles = theme => ({
+    resize: {
+        fontSize:20
+    }
+});
 
 
 class Header extends React.Component {
@@ -24,8 +30,7 @@ class Header extends React.Component {
     }
 
     handleUrlChange(e) {
-        this.setState({ url: e.target.value });
-        console.log(this.state.url);
+        this.setState({ url: e.target.value });    
     }
 
     handleChangeOne(e) {
@@ -37,12 +42,11 @@ class Header extends React.Component {
     }
 
     handleAddButton(e) {
-        console.log('add button');
         if (this.state.inputvalue1 && this.state.inputvalue2) {
             const nestArray = [];
             nestArray.push(this.state.inputvalue1);
             nestArray.push(this.state.inputvalue2);
-            nestArray.push(this.state.isChecked);
+            nestArray.push(this.state.isChecked === true ? "True" : "False");
             const array = this.state.data;
             array.push(nestArray);
             this.setState({ 
@@ -67,8 +71,24 @@ class Header extends React.Component {
             })
         })  
     }
+
     handleSubmitButton() {
-        alert("submit clicked");
+        axios.post('https://reqres.in/api/users',{
+                "name": "morpheus",
+                "job": "leader"
+            })
+            .then((response) => {
+                console.log(response);
+                if(response) {
+                    this.setState({
+                        data : [],
+                        isChecked : false
+                    })
+                }
+            })
+            .catch((error) => {
+                alert(error);
+            })
     }
 
     render() {
@@ -81,16 +101,21 @@ class Header extends React.Component {
                         </Typography>
                     </Toolbar>
                 </AppBar>
-                <Typography align='center'>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
                 <TextField
                     id="name"
                     className={this.props.textField}
+                    InputProps={{
+                        classes: {
+                            input: this.props.classes.resize
+                        }
+                    }}
                     placeholder="ENTER YOUR URL HERE"
-                    margin="normal"
+                    margin="none"
                     style = {{width: 400}}
                     onChange={this.handleUrlChange}
                 />
-                </Typography>
+                </div>
                 <SimpleTable
                     state={this.state}
                     onchangeone={this.handleChangeOne}
@@ -105,4 +130,4 @@ class Header extends React.Component {
     }
 }
 
-export default Header;
+export default withStyles(styles)(Header);
